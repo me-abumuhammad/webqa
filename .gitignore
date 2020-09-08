@@ -31,5 +31,5 @@
 *.out
 *.app
 
-/3rdparty
+3rdparty/drogon
 /bin
