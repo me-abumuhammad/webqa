@@ -1,0 +1,14 @@
+{
+    "db_clients": [{
+        "name": "mydb",
+        "rdbms": "postgresql",
+        "host": "ec2-54-156-121-142.compute-1.amazonaws.com",
+        "port": 5432,
+        "dbname": "d6q23eqt9eb5qe",
+        "user": "omabhidypobdnj",
+        "passwd": "ec9bc23a5798dbf70bdd6bd93c41afc2cb9c8825a521524c689cb4b3a33ffd42",
+        "is_fast": false,
+        "connection_number": 1,
+        "file_name": ""
+    }]
+}
