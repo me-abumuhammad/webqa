@@ -46,6 +46,8 @@ add_executable(webqa
     models/response.hpp
     utils/sha256.cpp
     utils/sha256.hpp
+    utils/verifheader.cpp
+    utils/verifheader.hpp
     ${VIEWSRC})
 add_dependencies(webqa drogon_ctl)
 
