@@ -48,6 +48,8 @@ add_executable(webqa
     utils/sha256.hpp
     utils/verifheader.cpp
     utils/verifheader.hpp
+    controller/akuncontroller.cpp
+    controller/akuncontroller.hpp
     ${VIEWSRC})
 add_dependencies(webqa drogon_ctl)
 

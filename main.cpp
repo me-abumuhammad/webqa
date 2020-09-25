@@ -10,6 +10,8 @@
 #include "utils/utils.hpp"
 #include "controller/donasicontroller.hpp"
 
+#define USE_POSTGRESQL
+
 using namespace std;
 
 int main()

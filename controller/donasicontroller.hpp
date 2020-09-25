@@ -26,7 +26,7 @@ public:
     void update_rekap(const drogon::HttpRequestPtr& req,
                       std::function<void(const drogon::HttpResponsePtr&)>&& callback) const;
     void all_rekap(const drogon::HttpRequestPtr& req,
-                      std::function<void(const drogon::HttpRequestPtr&)>&& callback) const;
+                      std::function<void(const drogon::HttpResponsePtr&)>&& callback) const;
 private:
     std::shared_ptr<DbProcess> m_db;
 };

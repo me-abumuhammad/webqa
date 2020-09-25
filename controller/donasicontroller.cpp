@@ -8,6 +8,11 @@ void DonasiController::login(const drogon::HttpRequestPtr &req, std::function<vo
     Akun akun;
     drogon::HttpResponsePtr resp =  drogon::HttpResponse::newHttpResponse();
     resp->setContentTypeCode(drogon::ContentType::CT_APPLICATION_JSON);
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    resp->addHeader("Access-Control-Allow-Methods", "POST");
+    resp->addHeader("Access-Control-Allow-Headers",
+                                   "x-requested-with,content-type");
+    resp->addHeader("Access-Control-Allow-Credentials","true");
     Response rs {};
     if (req->method() != drogon::HttpMethod::Post) {
         rs.build_failed("Method not allowed");
@@ -53,6 +58,11 @@ void DonasiController::login(const drogon::HttpRequestPtr &req, std::function<vo
 void DonasiController::update_rekap(const drogon::HttpRequestPtr &req, std::function<void (const drogon::HttpResponsePtr &)> &&callback) const {
     Rekap rekap;
     drogon::HttpResponsePtr resp =  drogon::HttpResponse::newHttpResponse();
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    resp->addHeader("Access-Control-Allow-Methods", "POST");
+    resp->addHeader("Access-Control-Allow-Headers",
+                                   "x-requested-with,content-type");
+    resp->addHeader("Access-Control-Allow-Credentials","true");
     resp->setContentTypeCode(drogon::ContentType::CT_APPLICATION_JSON);
     Response rs {};
     if (req->method() != drogon::HttpMethod::Post) {
@@ -78,7 +88,7 @@ void DonasiController::update_rekap(const drogon::HttpRequestPtr &req, std::func
                         kode = json.first["kode"].asCString();
                     }
                     if (json.first["nama"].isNull() == false) {
-                        nama = json.first["kode"].asCString();
+                        nama = json.first["nama"].asCString();
                     }
                     if (json.first["nominal"].isNull() == false) {
                         nominal = json.first["nominal"].asUInt64();
@@ -118,10 +128,15 @@ void DonasiController::update_rekap(const drogon::HttpRequestPtr &req, std::func
     callback(resp);
 }
 
-void DonasiController::all_rekap(const drogon::HttpRequestPtr &req, std::function<void (const drogon::HttpRequestPtr &)> &&callback) const {
+void DonasiController::all_rekap(const drogon::HttpRequestPtr &req, std::function<void (const drogon::HttpResponsePtr &)> &&callback) const {
     Json::Value all;
     drogon::HttpResponsePtr resp =  drogon::HttpResponse::newHttpResponse();
     resp->setContentTypeCode(drogon::ContentType::CT_APPLICATION_JSON);
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    resp->addHeader("Access-Control-Allow-Methods", "GET");
+    resp->addHeader("Access-Control-Allow-Headers",
+                                   "x-requested-with,content-type");
+    resp->addHeader("Access-Control-Allow-Credentials","true");
     Response rs {};
     if (req->method() != drogon::HttpMethod::Get) {
         rs.build_failed("Method not allowed");
@@ -134,8 +149,36 @@ void DonasiController::all_rekap(const drogon::HttpRequestPtr &req, std::functio
         bool auth = verif.check_authorization_token(headers.at("authorization"), message);
         if (auth == true) {
             if (headers["content-type"] == "application/json") {
-
+                std::vector<Rekap> rek;
+                m_db->get_all_donasi([&rek](std::optional<std::vector<Rekap>> res){
+                    if (res.has_value()) {
+                        rek.reserve(res.value().size());
+                        rek.insert(rek.begin(),
+                                   std::make_move_iterator(res.value().begin()),
+                                   std::make_move_iterator(res.value().end()));
+                    }
+                });
+                std::vector<Rekap>::const_iterator it;
+                Json::Value jsn(Json::arrayValue);
+                int i = 0;
+                for (it = rek.begin(); it != rek.end(); ++it) {
+                    jsn[i] = it->get_data_json();
+                    ++i;
+                }
+                rs.set_data_json(std::move(jsn));
+                rs.build_success();
+                resp->setStatusCode(drogon::HttpStatusCode::k200OK);
+            }
+            else {
+                rs.build_failed("Not acceptable");
+                resp->setStatusCode(drogon::HttpStatusCode::k406NotAcceptable);
             }
         }
+        else {
+            rs.build_failed(message);
+            resp->setStatusCode(drogon::HttpStatusCode::k401Unauthorized);
+        }
     }
+    resp->setBody(rs.get_data_json().toStyledString());
+    callback(resp);
 }

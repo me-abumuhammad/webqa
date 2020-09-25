@@ -61,7 +61,7 @@ public:
         Json::Value json;
         json["code"] = m_code;
         json["name"] = m_name;
-        json["nominal"] = m_nominal;
+        json["nominal"] = Json::UInt64(m_nominal);
         return json;
     }
 private:
