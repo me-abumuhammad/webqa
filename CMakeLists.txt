@@ -41,6 +41,7 @@ add_executable(webqa
     controller/donasicontroller.hpp
     utils/jsonconverter.cpp
     utils/jsonconverter.hpp
+    utils/utils.cpp
     utils/utils.hpp
     models/response.cpp
     models/response.hpp
@@ -50,6 +51,20 @@ add_executable(webqa
     utils/verifheader.hpp
     controller/akuncontroller.cpp
     controller/akuncontroller.hpp
+    utils/sessionfilter.cpp
+    utils/sessionfilter.hpp
+    controller/basecontroller.cpp
+    controller/basecontroller.hpp
+    models/users.cpp
+    models/users.hpp
+    db/akunprocess.cpp
+    db/akunprocess.hpp
+    models/buku.cpp
+    models/buku.hpp
+    controller/bukucontroller.cpp
+    controller/bukucontroller.hpp
+    db/bukuprocess.cpp
+    db/bukuprocess.hpp
     ${VIEWSRC})
 add_dependencies(webqa drogon_ctl)
 

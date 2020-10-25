@@ -17,6 +17,7 @@ public:
     Response& build_failed(std::string_view msg = "failed");
 private:
     Json::Value m_resp;
+
 };
 
 #endif // RESPONSE_HPP

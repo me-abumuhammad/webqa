@@ -13,6 +13,7 @@ public:
     METHOD_ADD(DonasiController::login, "/login", drogon::Post);
     METHOD_ADD(DonasiController::update_rekap, "/update", drogon::Post);
     METHOD_ADD(DonasiController::all_rekap, "/rekap", drogon::Get);
+    METHOD_ADD(DonasiController::rekap_for_bot, "/list", drogon::Get);
     METHOD_LIST_END
 
     explicit DonasiController() {}
@@ -27,6 +28,8 @@ public:
                       std::function<void(const drogon::HttpResponsePtr&)>&& callback) const;
     void all_rekap(const drogon::HttpRequestPtr& req,
                       std::function<void(const drogon::HttpResponsePtr&)>&& callback) const;
+    void rekap_for_bot(const drogon::HttpRequestPtr& req,
+                       std::function<void(const drogon::HttpResponsePtr&)>&& callback) const;
 private:
     std::shared_ptr<DbProcess> m_db;
 };

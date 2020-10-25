@@ -1,4 +1,4 @@
-FROM webqa:1.1.2
+FROM webqa:1.2.3
 
 WORKDIR /usr/src/webjadwal/webqa/build
 CMD ["./webqa"]
