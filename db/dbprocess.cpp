@@ -72,30 +72,6 @@ void DbProcess::update_rekap(Rekap &&rekap, RekapResult &&callback) {
     }
 }
 
-void DbProcess::check_username(std::string_view username, BoolResult callback) {
-    if (username == "") callback(false);
-    else {
-        std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select count(username) as hit from donasi.akun where username = $1",
-                                                                        username.data());
-        try {
-            res.wait();
-            drogon::orm::Result f_get = res.get();
-            if (f_get.size() == 0) {
-                callback(false);
-            }
-            else {
-                int hit = 0;
-                for (auto row: f_get) {
-                    hit = row["hit"].as<int>();
-                }
-                callback(hit == 0 ? false: true);
-            }
-        } catch (const drogon::orm::DrogonDbException&) {
-            callback(false);
-        }
-    }
-}
-
 void DbProcess::get_all_donasi(RekapAllResult &&callback) {
     std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select * from donasi.rekap");
     std::vector<Rekap> result;
@@ -110,4 +86,14 @@ void DbProcess::get_all_donasi(RekapAllResult &&callback) {
     } catch (const drogon::orm::DrogonDbException&) {
         callback(result);
     }
+}
+
+bool DbProcess::save_token(const Json::Value &akun) {
+    std::string usename = akun["username"].asString();
+    std::string token = akun["token"].asString();
+    auto result = m_db->execSqlSync("update donasi.akun set token = $1 where username = $2", token, usename);
+    if (result.affectedRows() == 0)
+        return false;
+    else
+        return true;
 }

@@ -65,6 +65,9 @@ add_executable(webqa
     controller/bukucontroller.hpp
     db/bukuprocess.cpp
     db/bukuprocess.hpp
+    db/baseprocess.cpp
+    db/baseprocess.hpp
+    db/interfaceprocess.hpp
     ${VIEWSRC})
 add_dependencies(webqa drogon_ctl)
 

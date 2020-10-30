@@ -1,12 +1,10 @@
 #ifndef DONASICONTROLLER_HPP
 #define DONASICONTROLLER_HPP
 
-#include <drogon/HttpController.h>
-#include <drogon/orm/DbClient.h>
-
 #include "../db/dbprocess.hpp"
+#include "basecontroller.hpp"
 
-class DonasiController: public drogon::HttpController<DonasiController, false>
+class DonasiController: public drogon::HttpController<DonasiController, false>, public BaseController
 {
 public:
     METHOD_LIST_BEGIN

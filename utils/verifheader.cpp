@@ -10,25 +10,30 @@
 #include "jsonconverter.hpp"
 
 bool VerifHeader::check_authorization_token(std::string_view token, std::string& message) {
-    auto decoded = bangkong::decode_jwt_string(token);
-    auto verifier = jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256(bangkong::env<std::string>::value(bangkong::HAS_KEY)))
-            .with_issuer("auth0");
-    try {
-        verifier.verify(decoded);
-        std::unordered_map<std::string, jwt::claim> payloads = decoded.get_payload_claims();
-        bool status = false;
-        std::string_view usr = payloads["username"].as_string();
-        m_db->check_username(usr, [&status](bool s){
-            status = s;
-        });
-        return status;
-    } catch (const jwt::token_verification_exception& e) {
-        message = e.what();
+    std::vector<std::string> splt_token = bangkong::split_string<std::string>(token.data(), " ");
+    if (m_db->check_token(splt_token.at(1)) == false) {
+        message = "Token tidak valid";
         return false;
     }
-
-    return true;
+    else {
+        if (check_timeout(token, message) == true) {
+            auto decoded = bangkong::decode_jwt_string(token);
+            bool status = false;
+            std::unordered_map<std::string, jwt::claim> payloads = decoded.get_payload_claims();
+            std::string_view usr = payloads["username"].as_string();
+            m_db->check_username(usr, [&status](bool s){
+                status = s;
+            });
+            if (status == false) {
+                message = "Username tidak ada";
+                return status;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 bool VerifHeader::check_timeout(std::string_view token, std::string &message) {

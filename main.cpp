@@ -10,6 +10,7 @@
 #include "utils/utils.hpp"
 #include "controller/donasicontroller.hpp"
 #include "controller/akuncontroller.hpp"
+#include "controller/bukucontroller.hpp"
 #include "utils/sessionfilter.hpp"
 
 #define USE_POSTGRESQL
@@ -24,6 +25,9 @@ int main()
 
     auto akun_ctrl = std::make_shared<AkunController>(db);
     drogon::app().registerController(akun_ctrl);
+
+    auto buku_ctrl = std::make_shared<BukuController>(db);
+    drogon::app().registerController(buku_ctrl);
 
     auto session_filter = std::make_shared<SessionFilter>();
     drogon::app().registerFilter(session_filter);

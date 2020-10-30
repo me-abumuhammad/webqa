@@ -1,9 +1,6 @@
 #ifndef BUKUCONTROLLER_HPP
 #define BUKUCONTROLLER_HPP
 
-#include <drogon/HttpController.h>
-#include <drogon/orm/DbClient.h>
-
 #include "../db/bukuprocess.hpp"
 #include "basecontroller.hpp"
 

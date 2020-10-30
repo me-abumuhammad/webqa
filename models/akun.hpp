@@ -63,6 +63,10 @@ public:
         return m_password;
     }
 
+    std::string get_token() const {
+        return m_token;
+    }
+
     Json::Value get_data_json() const override {
         Json::Value json;
         json["username"] = m_username;
@@ -84,6 +88,7 @@ private:
     std::string m_username;
     std::string m_password;
     std::string m_name;
+    std::string m_token;
 };
 
 #endif // AKUN_HPP

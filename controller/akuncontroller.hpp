@@ -1,9 +1,6 @@
 #ifndef AKUNCONTROLLER_HPP
 #define AKUNCONTROLLER_HPP
 
-#include <drogon/HttpController.h>
-#include <drogon/orm/DbClient.h>
-
 #include "basecontroller.hpp"
 
 #include "../db/akunprocess.hpp"
