@@ -13,6 +13,15 @@ struct header_vec {
 };
 }
 
+namespace bangkong {
+struct ReqParam {
+    using type = const typename drogon::HttpRequestPtr &;
+};
+struct RespParam {
+    using type = typename std::function<void (const drogon::HttpResponsePtr &)> &&;
+};
+}
+
 class BaseController
 {
 public:

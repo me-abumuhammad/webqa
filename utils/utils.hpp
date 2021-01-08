@@ -44,5 +44,8 @@ Cont<T> split_string(const T& msg, std::string_view delim = " ") {
 }
 
 jwt::decoded_jwt decode_jwt_string(std::string_view token);
+std::string create_num(const std::string& tgl, int id_donasi, int current_number);
+std::string create_num_kredit(const std::string& tgl, int id_donasi, int current_number, int tipe = 2);
+std::tuple<int, int, int> tgl_to_int(const std::string& tgl);
 }
 #endif // UTILS_HPP

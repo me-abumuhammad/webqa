@@ -22,6 +22,7 @@ endforeach()
 find_package(Boost COMPONENTS system date_time filesystem REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(fmt REQUIRED)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 add_subdirectory(3rdparty/drogon)
 include_directories("${CMAKE_CURRENT_LIST_DIR}/3rdparty/jwt-cpp/")
@@ -59,6 +60,8 @@ add_executable(webqa
     models/users.hpp
     db/akunprocess.cpp
     db/akunprocess.hpp
+    models/jenistransaksi.cpp
+    models/jenistransaksi.hpp
     models/buku.cpp
     models/buku.hpp
     controller/bukucontroller.cpp
@@ -68,6 +71,37 @@ add_executable(webqa
     db/baseprocess.cpp
     db/baseprocess.hpp
     db/interfaceprocess.hpp
+    controller/jenistransaksicontroller.cpp
+    controller/jenistransaksicontroller.hpp
+    db/jenistransaksiprocess.cpp
+    db/jenistransaksiprocess.hpp
+    models/bukujenistransaksi.cpp
+    models/bukujenistransaksi.hpp
+    models/header.cpp
+    models/header.hpp
+    models/menu.cpp
+    models/menu.hpp
+    db/menuprocess.cpp
+    db/menuprocess.hpp
+    controller/menucontroller.cpp
+    controller/menucontroller.hpp
+    models/pelaksana.cpp
+    models/pelaksana.hpp
+    models/muhsinin.cpp
+    models/muhsinin.hpp
+    models/sumberdana.cpp
+    models/sumberdana.hpp
+    db/donasiprocess.cpp
+    db/donasiprocess.hpp
+    utils/money.hpp
+    utils/mystack.hpp
+    utils/mystack.cpp
+    utils/corsfilter.cpp
+    utils/corsfilter.hpp
+    controller/transaksicontroller.cpp
+    controller/transaksicontroller.hpp
+    models/hitbase.cpp
+    models/hitbase.hpp
     ${VIEWSRC})
 add_dependencies(webqa drogon_ctl)
 

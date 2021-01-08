@@ -35,6 +35,12 @@ public:
         return *this;
     }
 
+    Rekap(Rekap&& other) {
+        m_code = std::move(other.m_code);
+        m_name = std::move(other.m_name);
+        m_nominal = other.m_nominal;
+    }
+
     void set_code(std::string_view code) {
         m_code = code;
     }

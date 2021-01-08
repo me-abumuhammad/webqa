@@ -1,4 +1,6 @@
 #include "bukuprocess.hpp"
+#include <boost/lexical_cast.hpp>
+#include "../utils/money.hpp"
 
 void BukuProcess::add(Buku &&buku, BukuResult &&callback, std::string& msg) {
     if (check_book_name(buku.get_nama()) == false) {
@@ -29,7 +31,7 @@ std::optional<Buku> BukuProcess::get_last_buku() const {
         }
         else {
             for(auto row: f_get) {
-                Buku bk {row["id_buku"].as<int>(), row["nama"].as<std::string_view>(), row["status"].as<bool>()};
+                Buku bk {row["id_buku"].as<int>(), row["nama"].as<std::string_view>(), row["status"].as<bool>(), row["bg"].as<std::string_view>()};
                 std::optional<Buku> opt = std::move(bk);
                 return bk;
             }
@@ -50,7 +52,7 @@ void BukuProcess::get_buku_by_id(int id, BukuResult &&callback) {
         }
         else {
             for(auto row: f_get) {
-                Buku bk {row["id_buku"].as<int>(), row["nama"].as<std::string_view>(), row["status"].as<bool>()};
+                Buku bk {row["id_buku"].as<int>(), row["nama"].as<std::string_view>(), row["status"].as<bool>(), row["bg"].as<std::string_view>()};
                 std::optional<Buku> opt = std::move(bk);
                 callback(opt);
             }
@@ -65,16 +67,17 @@ void BukuProcess::update_buku(Buku &&buku, BukuResult &&callback) {
     get_buku_by_id(buku.get_id_buku(), [&](std::optional<Buku> res) {
         res_buku = res;
     });
-    if (res_buku.has_value()) {
+    if (!res_buku.has_value()) {
         std::string msg = "";
         add(std::move(buku), [cb = std::move(callback)](std::optional<Buku> rs) {
             cb(rs);
         }, msg);
     }
     else {
-        auto result = m_db->execSqlSync("update donasi.buku set nama = $1, status = $2 where id_buku = $3",
+        auto result = m_db->execSqlSync("update donasi.buku set nama = $1, status = $2, bg = $3 where id_buku = $4",
                                         buku.get_nama(),
                                         buku.get_status(),
+                                        buku.get_bg(),
                                         buku.get_id_buku());
         if (result.affectedRows() == 0) {
             callback(std::nullopt);
@@ -86,7 +89,7 @@ void BukuProcess::update_buku(Buku &&buku, BukuResult &&callback) {
     }
 }
 
-void BukuProcess::get_all_buku(std::function<void (std::vector<Buku>)> &&callback) {
+void BukuProcess::get_all_buku(std::function<void (std::vector<Buku>)> &&callback) const {
     std::vector<Buku> result;
     std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select * from donasi.buku");
     try {
@@ -98,7 +101,7 @@ void BukuProcess::get_all_buku(std::function<void (std::vector<Buku>)> &&callbac
         else {
             result.reserve(f_get.size());
             for(auto row: f_get) {
-                result.emplace_back(row["id_buku"].as<int>(), row["nama"].as<std::string_view>(), row["status"].as<bool>());
+                result.emplace_back(row["id_buku"].as<int>(), row["nama"].as<std::string_view>(), row["status"].as<bool>(), row["bg"].as<std::string_view>());
             }
             callback(result);
         }
@@ -108,7 +111,7 @@ void BukuProcess::get_all_buku(std::function<void (std::vector<Buku>)> &&callbac
 }
 
 bool BukuProcess::delete_buku(int id_buku) {
-    auto result = m_db->execSqlSync("delete from buku where id_buku = $1", id_buku);
+    auto result = m_db->execSqlSync("delete from donasi.buku where id_buku = $1", id_buku);
     if (result.affectedRows() == 0)
         return false;
     else
@@ -133,5 +136,25 @@ bool BukuProcess::check_book_name(std::string_view name) {
     } catch (const drogon::orm::DrogonDbException&) {
     }
     return false;
+}
+
+Json::Value BukuProcess::get_data_saldo() const {
+    Json::Value arr(Json::arrayValue);
+    get_all_buku([&arr, this](std::vector<Buku> res){
+        std::vector<Buku>::iterator it;
+        int i = 0;
+        for (it = res.begin(); it != res.end(); ++it) {
+            Json::Value dta = it->get_data_json();
+            uint64_t debet = it->count_debet(m_db);
+            uint64_t kredit = it->count_kredit(m_db);
+            uint64_t total = debet - kredit;
+            dta["debet"] = Money::getInstance().toMoneyFormat(boost::lexical_cast<std::string>(debet), ".", "");
+            dta["kredit"] = Money::getInstance().toMoneyFormat(boost::lexical_cast<std::string>(kredit), ".", "");
+            dta["total"] = Money::getInstance().toMoneyFormat(boost::lexical_cast<std::string>(total), ".", "");
+            arr[i] = dta;
+            ++i;
+        }
+    });
+    return arr;
 }
 
