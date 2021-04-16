@@ -9,9 +9,9 @@ uint64_t SumberDana::count_debet(const std::weak_ptr<drogon::orm::DbClient> &db)
     uint64_t result = 0;
     std::future<drogon::orm::Result> res;
     if (m_buku_id != 0)
-        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.debet where buku_id = $1 and kode = $2", m_buku_id, m_kode);
+        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.debet where buku_id = $1 and kode = $2 and status_delete = $3", m_buku_id, m_kode, false);
     else
-        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.debet where kode = $1", m_kode);
+        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.debet where kode = $1 and status_delete = $2", m_kode, false);
     try {
         res.wait();
         drogon::orm::Result f_get = res.get();
@@ -29,9 +29,9 @@ uint64_t SumberDana::count_kredit(const std::weak_ptr<drogon::orm::DbClient> &db
     uint64_t result = 0;
     std::future<drogon::orm::Result> res;
     if (m_buku_id != 0)
-        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.kredit where buku_id = $1 and kode = $2", m_buku_id, m_kode);
+        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.kredit where buku_id = $1 and kode = $2 and status_delete = $3", m_buku_id, m_kode, false);
     else
-        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.kredit where kode = $1", m_kode);
+        res = db.lock()->execSqlAsyncFuture("select sum(nominal) as jml from donasi.kredit where kode = $1 and status_delete = $2", m_kode, false);
     try {
         res.wait();
         drogon::orm::Result f_get = res.get();

@@ -26,7 +26,7 @@ public:
     int current_number(int jenis_donasi) const;
     bool update_current_number(int jenis_donasi, int no) const;
 
-    bool save_donasi(Json::Value&& data) const;
+    bool save_donasi(bangkong::DonasiData&& data) const;
     bool update_donasi(Json::Value&& data) const;
     bool delete_donasi(std::string_view nomor) const;
     bool save_kredit(Json::Value&& data) const;

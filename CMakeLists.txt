@@ -26,6 +26,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 add_subdirectory(3rdparty/drogon)
 include_directories("${CMAKE_CURRENT_LIST_DIR}/3rdparty/jwt-cpp/")
+set(DATE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/3rdparty/date/include)
 
 add_executable(webqa
     main.cpp
@@ -102,8 +103,15 @@ add_executable(webqa
     controller/transaksicontroller.hpp
     models/hitbase.cpp
     models/hitbase.hpp
+    controller/muhsinincontroller.cpp
+    controller/muhsinincontroller.h
     ${VIEWSRC})
 add_dependencies(webqa drogon_ctl)
+
+target_include_directories(webqa
+        PUBLIC
+        ${DATE_INCLUDE_DIRS}
+        )
 
 target_link_libraries(${PROJECT_NAME}
         ${CMAKE_CURR}

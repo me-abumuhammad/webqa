@@ -4,6 +4,7 @@
 #include "../db/interfaceprocess.hpp"
 
 #include <jwt.h>
+#include <functional>
 
 class VerifHeader
 {

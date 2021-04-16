@@ -106,22 +106,23 @@ bool DonasiProcess::update_current_number(int jenis_donasi, int no) const {
     return status;
 }
 
-bool DonasiProcess::save_donasi(Json::Value &&data) const {
-    std::string tgl = data["tanggal"].asString();
-    int current_num = current_number(data["jenis_donasi"].asInt());
+bool DonasiProcess::save_donasi(bangkong::DonasiData &&data) const {
+    std::string tgl = data.tanggal;
+    int current_num = current_number(data.jenis_donasi);
     std::string current_tgl = current_now().toCustomedFormattedStringLocal("%Y-%m-%d");
-    std::string num = bangkong::create_num(current_tgl, data["jenis_donasi"].asInt(), current_num + 1);
+    std::string num = bangkong::create_num(current_tgl, data.jenis_donasi, current_num + 1);
     std::tuple<int, int, int> tpl = bangkong::tgl_to_int(tgl);
     auto tanggal = to_sys_days(std::get<0>(tpl), std::get<1>(tpl), std::get<2>(tpl));
     try {
+//        std::cout << num << " " << tanggal.toDbStringLocal() << " " << std::get<0>(tpl) << " " << std::get<1>(tpl) << " " << current_now().microSecondsSinceEpoch() << '\n';
         auto res = m_db->execSqlSync("insert into donasi.donasi(muhsinin_id, keterangan, nomor, pos_dana, url_kuitansi, pelaksana_id, tanggal, tahun, bulan, tgl_input)"
                                      " values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-                                     data["donatur"].asInt(),
-                                     data["keterangan"].asString(),
+                                     data.donatur,
+                                     data.keterangan,
                                      num,
-                                     data["jenis_donasi"].asInt(),
-                                     data["url"].asString(),
-                                     data["penerima"].asInt(),
+                                     data.jenis_donasi,
+                                     data.url,
+                                     data.penerima,
                                      tanggal.toDbStringLocal(),
                                      std::get<0>(tpl),
                                      std::get<1>(tpl),
@@ -129,15 +130,15 @@ bool DonasiProcess::save_donasi(Json::Value &&data) const {
                                      );
 
         if (res.affectedRows() > 0) {
-            update_current_number(data["jenis_donasi"].asInt(), current_num + 1);
-            uint64_t nominal = boost::lexical_cast<uint64_t>(data["nominal"].asString());
+            update_current_number(data.jenis_donasi, current_num + 1);
+            uint64_t nominal = boost::lexical_cast<uint64_t>(data.nominal);
             int donasi_id = get_id_donasi_by_nomor(num);
-            std::string kode = get_code_donasi(data["jenis_donasi"].asInt());
+            std::string kode = get_code_donasi(data.jenis_donasi);
             std::tuple<int64_t, int, int, std::string, std::string, int, int> data_transaksi = std::make_tuple(
                         nominal,
                         donasi_id,
 
-                        data["jenis_transaksi"].asInt(),
+                        data.jenis_transaksi,
                         kode,
                         num,
                         std::get<0>(tpl),
@@ -146,7 +147,7 @@ bool DonasiProcess::save_donasi(Json::Value &&data) const {
             return st;
         }
     } catch (const drogon::orm::DrogonDbException& e) {
-        std::cout << e.base().what() << std::endl;
+        std::cout << "DonasiProcess::save_donasi: " << e.base().what() << std::endl;
     }
     return false;
 }
@@ -224,7 +225,7 @@ bool DonasiProcess::save_transaksi_donasi(std::tuple<int64_t, int, int, std::str
                                      );
         return res.affectedRows() > 0;
     } catch (const drogon::orm::DrogonDbException& e) {
-        std::cout << e.base().what() << std::endl;
+        std::cout << "DonasiProcess::save_transaksi_donasi: " << e.base().what() << std::endl;
     }
     return false;
 }
@@ -241,6 +242,7 @@ bool DonasiProcess::save_transaksi_donasi(std::tuple<int64_t, int, int, std::str
 */
 
 bool DonasiProcess::save_transaksi(std::tuple<int64_t, int, int, int, std::string, std::string, int, int> &&data, const Json::Value& json) const {
+
     try {
         auto res = m_db->execSqlSync("insert into donasi.kredit(nomor_kredit, index_kredit, buku_id, kode, nominal, jenis_transaksi_id, tgl_input, keterangan, pelaksana_id, tanggal, url_kuitansi, tahun, bulan)"
                                      " values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
@@ -479,7 +481,8 @@ Json::Value DonasiProcess::get_all_donasi() const {
                                                                     " LEFT JOIN donasi.debet b on a.id_donasi = b.aktivitas_id"
                                                                     " LEFT JOIN donasi.sumber_dana c on a.pos_dana = c.id_sumber_dana"
                                                                     " LEFT JOIN donasi.muhsinin d on a.muhsinin_id = d.id_muhsinin"
-                                                                    " WHERE b.kode != 'SPP' and a.status_delete = $1 and aktivitas_id != 0 order by tanggal desc", false);
+                                                                    " LEFT JOIN donasi.jenis_transaksi e on b.jenis_transaksi_id = e.id_jenis_transaksi"
+                                                                    " WHERE b.kode != 'SPP' and a.status_delete = $1 and aktivitas_id != 0 and e.jenis = 1 order by tanggal desc", false);
     try {
         res.wait();
         drogon::orm::Result f_get = res.get();
@@ -640,11 +643,11 @@ int DonasiProcess::get_num_debet_by_nomor(std::string_view nomor) const {
 bool DonasiProcess::delete_transaksi(std::string_view nomor) const {
     if (get_num_transaksi_by_nomor(nomor) > 0) {
         try {
-            auto res = m_db->execSqlSync("update donasi.kredit set status_delete = $1 where nomor_kredit = $2", true, nomor.data());
-            if (res.affectedRows() > 0) {
+            auto remove_kredit = m_db->execSqlSync("delete from donasi.kredit where nomor_kredit = $1", nomor.data());
+            if (remove_kredit.affectedRows() > 0){
                 if (get_num_debet_by_nomor(nomor) > 0) {
-                    auto exe = m_db->execSqlSync("update donasi.debet set status_delete = $1 where nomor = $2", true, nomor.data());
-                    return exe.affectedRows() > 0;
+                    auto remove_debet = m_db->execSqlSync("delete from donasi.debet where nomor = $1", nomor.data());
+                    return remove_debet.affectedRows() > 0;
                 }
                 return true;
             }
@@ -655,8 +658,9 @@ bool DonasiProcess::delete_transaksi(std::string_view nomor) const {
     }
     else {
         try {
-             auto exe = m_db->execSqlSync("update donasi.debet set status_delete = $1 where nomor = $2", true, nomor.data());
-             return exe.affectedRows() > 0;
+
+            auto remove_debet = m_db->execSqlSync("delete from donasi.debet where nomor = $1", nomor.data());
+            return remove_debet.affectedRows();
         } catch (const drogon::orm::DrogonDbException& e) {
             std::cout << e.base().what() << std::endl;
         }
@@ -689,7 +693,7 @@ std::vector<BukuJenisTransaksi> DonasiProcess::get_buku_transkasi_by_jenis(int i
 
 uint64_t DonasiProcess::total_debet_by_buku(int buku_id) const {
     uint64_t total = 0;
-    std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select sum(nominal) as jml from donasi.debet where buku_id = $1", buku_id);
+    std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select sum(nominal) as jml from donasi.debet where buku_id = $1 and status_delete = $2", buku_id, false);
     try {
         res.wait();
         drogon::orm::Result f_get = res.get();
@@ -705,7 +709,7 @@ uint64_t DonasiProcess::total_debet_by_buku(int buku_id) const {
 
 uint64_t DonasiProcess::total_kredit_by_buku(int buku_id) const {
     uint64_t total = 0;
-    std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select sum(nominal) as jml from donasi.kredit where buku_id = $1", buku_id);
+    std::future<drogon::orm::Result> res = m_db->execSqlAsyncFuture("select sum(nominal) as jml from donasi.kredit where buku_id = $1 and status_delete = $2", buku_id, false);
     try {
         res.wait();
         drogon::orm::Result f_get = res.get();

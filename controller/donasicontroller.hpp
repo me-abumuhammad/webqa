@@ -42,7 +42,7 @@ public:
                      bangkong::RespParam::type callback) const;
 
     void save_donasi(bangkong::ReqParam::type req,
-                     bangkong::RespParam::type callback) const;
+                     bangkong::RespParam::type callback, bangkong::DonasiData&& donasi) const;
 
     void update_donasi(bangkong::ReqParam::type req,
                        bangkong::RespParam::type callback) const;
@@ -55,6 +55,7 @@ public:
 
     void delete_donasi(bangkong::ReqParam::type req,
                        bangkong::RespParam::type callback) const;
+
 
 private:
     template<typename T>

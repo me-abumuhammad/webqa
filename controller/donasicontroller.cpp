@@ -29,7 +29,6 @@ void DonasiController::login(const drogon::HttpRequestPtr &req, std::function<vo
                     .build_json_from_string()
                     .data_json();
             if (json.second == "") {
-                std::cout << "Usr: " << json.first["username"].asString() << " Pass: " << json.first["password"].asString() << std::endl;
                 m_db->login(Akun{json.first["username"].asString(), json.first["password"].asString(), ""}, [&akun](std::optional<Akun> res) {
                     if (res.has_value()) {
                         akun = res.value();
@@ -265,7 +264,9 @@ void DonasiController::form_donasi(bangkong::ReqParam::type req, bangkong::RespP
     callback(resp);
 }
 
-void DonasiController::save_donasi(bangkong::ReqParam::type req, bangkong::RespParam::type callback) const {
+void DonasiController::save_donasi(bangkong::ReqParam::type req,
+                                   bangkong::RespParam::type callback,
+                                   bangkong::DonasiData &&donasi) const {
     drogon::HttpResponsePtr resp = create_handle_header("POST");
     Response rs{};
     if (req->method() != drogon::HttpMethod::Post) {
@@ -283,24 +284,14 @@ void DonasiController::save_donasi(bangkong::ReqParam::type req, bangkong::RespP
             VerifHeader verif{m_db};
             bool token_is_valid = verif.check_authorization_token(headers.at("authorization"), message);
             if (token_is_valid == true) {
-                std::pair<Json::Value, JSONCPP_STRING> json = bangkong::JsonConverter()
-                        .set_body(req->body())
-                        .build_json_from_string()
-                        .data_json();
-                if (json.second == "") {
-                    bool stat = m_donasi->save_donasi(std::move(json.first));
-                    if (stat == true) {
-                        rs.build_success();
-                    }
-                    else {
-                        rs.build_failed("Data gagal disimpan");
-                    }
-                    resp->setStatusCode(drogon::HttpStatusCode::k200OK);
+                bool stat = m_donasi->save_donasi(std::move(donasi));
+                if (stat == true) {
+                    rs.build_success();
                 }
                 else {
-                    rs.build_failed("Key failed");
-                    resp->setStatusCode(drogon::HttpStatusCode::k400BadRequest);
+                    rs.build_failed("Data gagal disimpan");
                 }
+                resp->setStatusCode(drogon::HttpStatusCode::k200OK);
             }
             else {
                 rs.build_failed(message);
@@ -504,6 +495,7 @@ void DonasiController::delete_donasi(bangkong::ReqParam::type req, bangkong::Res
     resp->setBody(rs.get_data_json().toStyledString());
     callback(resp);
 }
+
 
 template <typename T>
 Json::Value DonasiController::parse_to_json_array(std::vector<T>&& data) const {

@@ -1,11 +1,12 @@
 #ifndef AKUN_HPP
 #define AKUN_HPP
 
-#include <string>
 #include <string_view>
+#inlude <string>
 
 #include "../utils/sha256.hpp"
 #include "../utils/utils.hpp"
+#include "absmodel.hpp"
 #include "absmodel.hpp"
 #include <jwt.h>
 

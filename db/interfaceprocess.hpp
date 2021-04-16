@@ -2,6 +2,7 @@
 #define INTERFACEPROCESS_HPP
 
 #include <string_view>
+#include <functional>
 
 class InterfaceProcess {
 public:

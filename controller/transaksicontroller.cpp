@@ -8,6 +8,7 @@
 #include "../utils/verifheader.hpp"
 #include "../utils/utils.hpp"
 
+
 TransaksiController::TransaksiController()
 {
 
@@ -236,7 +237,6 @@ void TransaksiController::update_transaksi(bangkong::ReqParam::type req, bangkon
 }
 
 void TransaksiController::delete_transaksi(bangkong::ReqParam::type req, bangkong::RespParam::type callback) const {
-    std::cout << "wew" << std::endl;
     drogon::HttpResponsePtr resp = create_handle_header("POST");
     Response rs{};
     if (req->method() != drogon::HttpMethod::Post) {
@@ -259,7 +259,6 @@ void TransaksiController::delete_transaksi(bangkong::ReqParam::type req, bangkon
                 VerifHeader verif{m_db};
                 bool token_is_valid = verif.check_authorization_token(headers.at("authorization"), message);
                 if (token_is_valid == true) {
-                    std::cout << "wew " << std::endl;
                     bool del = m_donasi->delete_transaksi(json.first["nomor"].asString());
                     if (del == true) {
                         rs.build_success();

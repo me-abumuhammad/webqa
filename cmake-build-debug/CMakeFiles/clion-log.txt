@@ -1,0 +1,28 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/local/Cellar/gcc/10.2.0/bin/gcc-10 -DCMAKE_CXX_COMPILER=/usr/local/Cellar/gcc/10.2.0/bin/g++-10 -G "CodeBlocks - Unix Makefiles" /Users/abumuhammad/Documents/C++/webjadwal/webqa
+-- The CXX compiler identification is GNU 10.2.0
+-- Checking whether CXX compiler has -isysroot
+-- Checking whether CXX compiler has -isysroot - yes
+-- Checking whether CXX compiler supports OSX deployment target flag
+-- Checking whether CXX compiler supports OSX deployment target flag - yes
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/local/Cellar/gcc/10.2.0/bin/g++-10 - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- cspFile:/Users/abumuhammad/Documents/C++/webjadwal/webqa/views/dashboard.csp
+-- view classname:dashboard
+-- cspFile:/Users/abumuhammad/Documents/C++/webjadwal/webqa/views/tampil.csp
+-- view classname:tampil
+CMake Error at /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.19/Modules/FindPackageHandleStandardArgs.cmake:218 (message):
+  Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the
+  system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY) (found
+  version "1.1.1h")
+Call Stack (most recent call first):
+  /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.19/Modules/FindPackageHandleStandardArgs.cmake:582 (_FPHSA_FAILURE_MESSAGE)
+  /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.19/Modules/FindOpenSSL.cmake:536 (find_package_handle_standard_args)
+  CMakeLists.txt:23 (find_package)
+
+
+-- Configuring incomplete, errors occurred!
+See also "/Users/abumuhammad/Documents/C++/webjadwal/webqa/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "/Users/abumuhammad/Documents/C++/webjadwal/webqa/cmake-build-debug/CMakeFiles/CMakeError.log".

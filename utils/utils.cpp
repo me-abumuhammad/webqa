@@ -15,10 +15,10 @@ jwt::decoded_jwt decode_jwt_string(std::string_view token) {
 }
 
 std::string create_num(const std::string& tgl, int id_donasi, int current_number) {
-    std::string_view thn = tgl.substr(2, 2);
-    std::string_view bln = tgl.substr(5, 2);
-    std::string_view donasi = boost::lexical_cast<std::string>(id_donasi);
-    std::string_view current = boost::lexical_cast<std::string>(current_number);
+    std::string thn = tgl.substr(2, 2);
+    std::string bln = tgl.substr(5, 2);
+    std::string donasi = boost::lexical_cast<std::string>(id_donasi);
+    std::string current = boost::lexical_cast<std::string>(current_number);
     int num_loop = 4 - current.length();
     std::string nomor = "";
 
@@ -31,10 +31,10 @@ std::string create_num(const std::string& tgl, int id_donasi, int current_number
 }
 
 std::string create_num_kredit(const std::string& tgl, int id_donasi, int current_number, int tipe) {
-    std::string_view thn = tgl.substr(2, 2);
-    std::string_view bln = tgl.substr(5, 2);
-    std::string_view donasi = boost::lexical_cast<std::string>(id_donasi);
-    std::string_view current = boost::lexical_cast<std::string>(current_number);
+    std::string thn = tgl.substr(2, 2);
+    std::string bln = tgl.substr(5, 2);
+    std::string donasi = boost::lexical_cast<std::string>(id_donasi);
+    std::string current = boost::lexical_cast<std::string>(current_number);
     int num_loop = 4 - current.length();
     std::string nomor = "";
 
